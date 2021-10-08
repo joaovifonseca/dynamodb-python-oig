@@ -47,27 +47,29 @@ def insert_all_tables(document, type_person):
     
     response = table.query(KeyConditionExpression=Key('pessoa').eq(document + '#' + type_person))
     
-    print(generate_cnpj())
-    print(generate_cpf())
-    
     if response['Count'] > 0:
         return response['Items']
     else:
         id_client = str(generate_id())
-        dynamodb.put_item(TableName=table_1, Item={'id_cliente':{'S':id_client},'pessoa':{'S':type_person + '#' + document}})
-        dynamodb.put_item(TableName=table_2, Item={'pessoa':{'S': type_person + '#' + document}, 'id_cliente':{'S':id_client}})
+        dynamodb.put_item(TableName=table_1, Item={'ID_CLI':{'S':id_client},'DOC':{'S':type_person + '#' + document}})
+        dynamodb.put_item(TableName=table_2, Item={'DOC':{'S':document},'TIP_DOC':{'S':type_person}, 'ID_CLI':{'S':id_client}})
         
 
 def insert_without_consult(document, type_person):
     table = dynamodbs.Table(table_2)
     id_client = str(generate_id())
-    dynamodb.put_item(TableName=table_1, Item={'id_cliente':{'S':id_client},'pessoa':{'S':type_person + '#' + document}})
-    dynamodb.put_item(TableName=table_2, Item={'pessoa':{'S': type_person + '#' + document}, 'id_cliente':{'S':id_client}})
+    dynamodb.put_item(TableName=table_1, Item={'ID_CLI':{'S':id_client},'DOC':{'S':type_person + '#' + document}})
+    dynamodb.put_item(TableName=table_2, Item={'DOC':{'S':document},'TIP_DOC':{'S':type_person}, 'ID_CLI':{'S':id_client}})
     
 def generate_insert_person(quantity):
     for x in range(quantity):
        cpf = generate_cpf()
-       insert_without_consult(cpf, 'F')
+     
+       try:
+           insert_without_consult(cpf, 'F')
+       except:
+           print("Something else went wrong")
+    
        
 def generate_insert_company(quantity):
     for x in range(quantity):
@@ -78,19 +80,21 @@ def generate_insert_company(quantity):
 def lambda_handler(event, context):
     
     #Para inserir/ consultar de forma normal use as tres linhas de código abaixo
-    '''
-    tipo_pessoa = 'F'
-    documento = '47270137896'
-    response = insert_all_tables(documento, tipo_pessoa)
-    '''
+    
+    type_person = 'J'
+    document = '84655772000151'
+    #eotij = str(type_person + '#' + document)
+    #print(eotij)
+    #response = insert_all_tables(document, type_person)
+    
     
     #Para gerar massa pj use o metodo e passe a quantidade de vezes
     #generate_insert_company(3000)
     
     #Para gerar massa pf use o metodo e passe a quantidade de vezes
-    #generate_insert_person(3000)
+    generate_insert_person(5000000)
     
     return {
         'statusCode': 200,
-        'body': 'lambada'
+        'body': 'asdasdasd'
     }
